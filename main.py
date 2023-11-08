@@ -4,10 +4,12 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-@app.post('/scrap_song')
+# This endpoint scraps song data from cifra club
+@app.post('/scrap_song_cifra_club')
 def scrap_song(body: dict):
     # Retrieve song
-    response = requests.get(body['uri'])
+    url: str = body['uri']
+    response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
   
     # Store scraped results to variables
@@ -17,14 +19,34 @@ def scrap_song(body: dict):
     songWritter: str = ''
     
 	# Search for html classes that match song data
-    headlines= []
-    for headline in soup.find_all('div', class_='cifra-column--left'):
-        headlines.append(headline.text)
-    print(headlines)
-    
-	# Returns songs data as json
-    return {'body': headlines}
+    body = soup.find('div', class_='cifra-column--left')
+    tone = soup.find('span', id='cifra_tom')
+    title = soup.find('h1', class_="t1")
+    writter = soup.find('h2', class_="t3")
 
+    # Set data to previous created variables
+    if body:
+        songBody = body.text
+    if tone:
+        songTone = tone.find('a').text
+    if title:
+        songTitle = title.text
+    if writter:
+        songWritter = writter.find('a').text
+   
+	# Returns songs data as json
+    return {
+        'status': 200,
+        'message': 'Música importada de ' + url,
+        'scraped_data': {
+            'songBody': songBody,
+            'songTone': songTone,
+            'songTitle': songTitle,
+            'songWritter': songWritter
+        }
+    }
+
+# This endpoint scraps liturgy from pocket terço app
 @app.post('/scrap_liturgy')
 def scrap_liturgy(body: dict):
     # Retrieve liturgy page
@@ -43,8 +65,8 @@ def scrap_liturgy(body: dict):
     communium: str = ''
 
 	# Search for html classes that match target date content
-    test = soup.find('div', id_='antifonaEntradaMissal')
-    print(test)
+    entrance = soup.find('div', id_='accorside-1')
+    # firstLecture = soup.find('div', id_='accorside-6').text
     
 	# Returns liturgy data as json
     return {
