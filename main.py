@@ -10,7 +10,7 @@ def scrap_song(body: dict):
     # Retrieve song
     url: str = body['uri']
     response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = BeautifulSoup(response.content, 'lxml')
   
     # Store scraped results to variables
     songBody: str = ''
@@ -25,13 +25,13 @@ def scrap_song(body: dict):
     writter = soup.find('h2', class_="t3")
 
     # Set data to previous created variables
-    if body:
+    if body is not None:
         songBody = body.text
-    if tone:
+    if tone is not None:
         songTone = tone.find('a').text
-    if title:
+    if title is not None:
         songTitle = title.text
-    if writter:
+    if writter is not None:
         songWritter = writter.find('a').text
    
     # Returns songs data as json
@@ -52,7 +52,7 @@ def scrap_song(body: dict):
     # Retrieve song
     url: str = body['uri']
     response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = BeautifulSoup(response.content, 'lxml')
   
     # Store scraped results to variables
     songBody: str = ''
@@ -65,11 +65,11 @@ def scrap_song(body: dict):
     writter = soup.find('a', class_="component-bordered-heading__content")
 
     # Set data to previous created variables
-    if body:
+    if body is not None:
         songBody = body.text
-    if title:
+    if title is not None:
         songTitle = title.text
-    if writter:
+    if writter is not None:
         songWritter = writter.text
    
     # Returns songs data as json
@@ -80,36 +80,5 @@ def scrap_song(body: dict):
             'songBody': songBody,
             'songTitle': songTitle,
             'songWritter': songWritter
-        }
-    }
-
-# This endpoint scraps liturgy from pocket terço app
-@app.post('/scrap_liturgy')
-def scrap_liturgy(body: dict):
-    # Retrieve liturgy page
-    url: str = 'https://pocketterco.com.br/liturgia/' + body['date']
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-	# Store scraped results to variables
-    entrance: str = ''
-    firstLecture: str = ''
-    secondLecture: str = ''
-    gospel: str = ''
-    psalm: str = ''
-    aleluia: str = ''
-    offerings: str = ''
-    communium: str = ''
-
-    # Search for html classes that match target date content
-    entrance = soup.find('div', id_='accorside-1')
-    # firstLecture = soup.find('div', id_='accorside-6').text
-    
-    # Returns liturgy data as json
-    return {
-        'status': 200,
-        'message': 'Liturgy sucessfully scraped from ' + url,
-        'scraped_data': {
-            'entrance': entrance
         }
     }
