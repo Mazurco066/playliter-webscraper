@@ -27,7 +27,7 @@ Api setup:
 
 ```sh
 # Run the api using this command
-uvicorn main:app --reload
+python main.py
 ```
 
 ## Author
